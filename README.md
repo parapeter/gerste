@@ -7,6 +7,7 @@ This tiny script updates the systemtime of your linux machine. It uses ```curl``
  1. Make sure your user is configured to use sudo or doas (if not root)
  2. Install dependencies:
 ```bash
+  > ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
   > pacman -S curl shuf date tor
   > systemctl enable tor.service
 ```
