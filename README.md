@@ -93,3 +93,6 @@ You can:
 
 ## :interrobang: Why
 I've started this script because of an article which claims ntp as an insecure protocoll and because of... why not. However, since I'm affected by the "summer-winter-time-switching-model" the most public scripts like this won't work for me out of the box. So I've decided to do it on my own.
+
+## :envelope: Contact
+Mail: peterparanoid@proton.me
