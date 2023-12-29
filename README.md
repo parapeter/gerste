@@ -5,9 +5,12 @@ This tiny script updates the systemtime of your linux machine. It uses ```curl``
 
 ## :hammer_and_wrench: Preparation
  1. Make sure your user is configured to use sudo or doas (if not root)
- 2. Install dependencies:
+ 2. Make sure /etc/localtime is set correctly
 ```bash
   > ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+```
+ 3. Install dependencies:
+```bash
   > pacman -S curl shuf date tor
   > systemctl enable tor.service
 ```
@@ -25,7 +28,7 @@ Create gerste.timer:
 ```bash
   > nano /usr/lib/systemd/system/gerste.timer
 ```
-```bash
+```
   [Unit]
   Description=Run gerste every 3min
 
@@ -40,7 +43,7 @@ Create gerste.service:
 ```bash
   > nano /usr/lib/systemd/system/gerste.service
 ```
-```bash
+```
   [Unit]
   Description=Run gerste for automatic timesync
 
@@ -58,7 +61,8 @@ Create gerste.service:
 ```
 Enable timer:
 ```bash
-  > systemctl enable gerste.timer
+  > systemctl daemon-reload
+  > systemctl enable --now gerste.timer
 ```
 
 #### Create a pacman hook:
