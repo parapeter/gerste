@@ -1,7 +1,7 @@
 # :watch: GERSTE (GERman-Secure-Timesync-Execution)
 <img src="https://i.ibb.co/DbXkYy3/barley-field-8230-960-720.jpg" width="300" height="200">
 
-This tiny bash-script updates the systemtime of your linux machine. It uses ```curl``` to get the header-response of a website, then ```grep``` the time and whether it's summer or wintertime the script automatically update time correctly with ```date -s```. By default ```curl``` will use ```tor```. You can it run without ```tor``` (see below: :gear: [Configuration](https://github.com/paranoidpeter/gerste#gear-configuration)). This script may be useful for other countries since not only germany is changing the time once a year, but the first impulse for the name was ```gerste``` without keeping that in mind (maybe because I like beer?).
+This tiny bash-script updates the systemtime of your linux machine. It uses ```curl``` to get the header-response of a website, then ```grep``` the time and whether it's summer or wintertime the script automatically update time correctly with ```date -s```. By default ```curl``` will use ```tor```. You can run without ```tor``` (see below: :gear: [Configuration](https://github.com/paranoidpeter/gerste#gear-configuration)). This script may be useful for other countries since not only germany is changing the time once a year, but the first impulse for the name was ```gerste``` without keeping that in mind (maybe because I like beer?).
 
 ## :hammer_and_wrench: Preparation
  1. Make sure your user is configured to use sudo or doas (if not root)
