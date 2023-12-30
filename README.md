@@ -17,7 +17,7 @@ This script was highly inspired by [secure-time-sync](https://github.com/Obscuri
   > ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 ```
 
-1. Install and enable dependencies
+3. Install and enable dependencies
 
 ```bash
   > pacman -S wget tor torsocks shuf date
