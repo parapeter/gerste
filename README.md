@@ -5,7 +5,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black) ![Shell Script](https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white) <br>
 ![Badge License](https://img.shields.io/badge/License-GPL3-015d93.svg?style=for-the-badge&labelColor=blue)
 
-This tiny bash script updates your system- and hardware clock. It uses  `wget`  (optionally through  `torsocks` ) to obtain the header of a given domain (without downloading the website), after that it `grep`s the timestamp and, based on whether it's summer- or wintertime, it automatically updates the systemtime correctly with `date`. By default, `gerste` sends traffic through clearnet (to use `tor` &rarr; see below: :rocket: [Usage](https://github.com/paranoidpeter/gerste#rocket-usage)).
+This tiny bash script updates your system clock. It uses  `wget`  (optionally through  `torsocks` ) to obtain the header of a given domain (without downloading the website), after that it `grep`s the timestamp and, based on whether it's summer- or wintertime, it automatically updates the systemtime correctly with `date`. By default, `gerste` sends traffic through clearnet (to use `tor` &rarr; see below: :rocket: [Usage](https://github.com/paranoidpeter/gerste#rocket-usage)).
 
 This script may be useful for other countries¹ since not only Germany changes clocktime twice a year. Without keeping this in mind, the first impulse for a good name was `gerste` (maybe because of the association to beer?).
 
@@ -141,7 +141,7 @@ You can:
 :exclamation: **IMPORTANT** :exclamation: Different web servers can give different datestamps, your systemtime **can** differ more than 10 seconds on every execution. By default only 1 url is given to avoid such a behaviour.<br/>
 1.1. Change the value of `server_urls=( example.onion )` or `server_urls=( example.org )` and make sure **at least one url** is configured. `server_urls` is a space separated list.<br/>
 
-2. Use another timezone:<br />3\.1. Change the value in if-statement below `### CHECK FOR WINTERTIME` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
+2. Use another timezone:<br />2\.1. Change the value in if-statement below `### CHECK FOR WINTERTIME` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
 
 ## :rocket: Usage
 After installation you can simply type:
