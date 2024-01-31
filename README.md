@@ -146,7 +146,7 @@ You can:
 1.1. Change the value of `server_urls=( example.onion )` or `server_urls=( example.org )` and make sure **at least one url** is configured. `server_urls` is a space separated list.<br/>
 
 2. Use another timezone:<br />
-2.1. Change the value in if-statement below `### CHECK FOR WINTERTIME` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
+2.1. Change the value in if-statement below `### WINTERTIME OPERATIONS` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
 
 ## :rocket: Usage
 After installation you can simply type:
