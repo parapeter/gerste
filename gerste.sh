@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste (GERman Secure Timesync Execution)
-#      Version : 0.2.1
+#      Version : 0.2.2
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/gerste
 #      Author  : paranoidpeter
@@ -27,7 +27,7 @@
 set -E
 #
 ### VERSION INFOS
-readonly current_version="0.2.1"
+readonly current_version="0.2.2"
 readonly script_name="gerste"
 #
 ### ECHO HELPER
