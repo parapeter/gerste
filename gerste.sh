@@ -26,17 +26,18 @@
 ### ERROR HANDLING
 set -E
 #
-### DEBUGGING HELPER
-function debug { [[ ${debug_mode} == true ]] && echo "[ gerste ] debug: ${1}"; }
-#
 ### VERSION INFOS
 readonly current_version="0.2.1"
 readonly script_name="gerste"
-
+#
+### ECHO HELPER
+function debug { [[ ${debug_mode} == true ]] && echo "[ ${script_name} ] debug: ${1}"; }
+function error { echo "[ ${script_name} ] error: ${1}"; }
+function info { echo "[ ${script_name} ] info: ${1}"; }
 
 ### PARAMETER HANDLING
 for parameter in "$@"; do
-    case $parameter in
+    case "${parameter}" in
         -d|--debug)
             readonly debug_mode=true
             ;;
@@ -47,7 +48,7 @@ for parameter in "$@"; do
             echo "${script_name}-${current_version}" && exit 0
             ;;
         *)
-            echo "[ gerste ] error: illegal parameter $parameter" && exit 1
+            error "illegal parameter ${parameter}" && exit 1
             ;;
     esac
 done
@@ -64,7 +65,7 @@ done
 #  Note: You can configure a mixed list (clearweb and onion domains) if tor option is used.
 if [[ ${tor} == true ]]; then
     server_urls=( 2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion )
-    dependencies=( wget date shuf tor torsocks )
+    dependencies=( wget date shuf systemctl tor torsocks )
 else
     server_urls=( archlinux.org )
     dependencies=( wget date shuf )
@@ -74,33 +75,33 @@ fi
 ### CHECK DEPENDENCIES
 # Check installed packages
 for dependency in "${dependencies[@]}"; do
-    [[ -z $(command -v "${dependency}") ]] && echo "[ gerste ] error: ${dependency} is not installed" && exit 1
+    [[ -z $(command -v "${dependency}") ]] && error "${dependency} is not installed" && exit 1
 done
 
-# If tor check whether tor.service is active
-[[ ${tor} == true ]] && [[ $(systemctl is-active tor.service) != "active" ]] && echo "[ gerste ] error: tor is not active" && exit 1
+# Check if tor.service is active
+[[ ${tor} == true ]] && [[ $(systemctl is-active tor.service) != "active" ]] && error "tor is not active" && exit 1
 debug "dependencies check passed"
 
 
 ### "RANDOM" URL SELECTION
-readonly server_urls_length=$((${#server_urls[@]} - 1))
-readonly random_url_selector=$(shuf -i 0-${server_urls_length} -n 1)
-readonly random_url=${server_urls[${random_url_selector}]}
+random_url_selector=$((RANDOM % ${#server_urls[@]})) && readonly random_url_selector
+debug "${random_url_selector}"
+random_url=${server_urls[${random_url_selector}]} && readonly random_url
 debug "selected url: \"${random_url}\""
 
 
 ### GET TIME
 # Get new time via wget (with or without torsocks)
 if [[ ${tor} == true ]]; then
-    readonly wget_time=$(torsocks wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "${random_url}" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && debug "wget time WITH torsocks"
+    wget_time=$(torsocks wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "${random_url}" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly wget_time && debug "wget time WITH torsocks"
 else
-    readonly wget_time=$(wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "${random_url}" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && debug "wget time WITHOUT torsocks"
+    wget_time=$(wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "${random_url}" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly wget_time && debug "wget time WITHOUT torsocks"
 fi
-[[ -z ${wget_time} ]] && echo "[ gerste ] error: could not get time from server.. please check network or configured domains" && exit 1
-debug "wget_time = ${wget_time}"
+[[ -z ${wget_time} ]] && error "could not get time from server.. please check network or configured domains" && exit 1
+debug "wget server time = ${wget_time}"
 
 # Get current systemtime
-readonly current_time=$(date +%H:%M:%S)
+current_time=$(date +%H:%M:%S) && readonly current_time
 debug "current systemtime: ${current_time}"
 
 # Split wget_time into hours, minutes and seconds
@@ -111,35 +112,34 @@ readonly seconds=${time_array[2]}
 
 
 ### CHECK FOR WINTERTIME
-readonly current_timezone=$(date +%Z) && debug "current_timezone = \"${current_timezone}\""
+current_timezone=$(date +%Z) && readonly current_timezone && debug "current_timezone = \"${current_timezone}\""
 [[ ${current_timezone} == "CET" ]] && readonly wintertime=true || readonly wintertime=false
 
-# Check whether current timezone is set
-[[ -z $(date +%Z) ]] && echo "[ gerste ] error: could not get current system timezone" && exit 1
+# Check if current timezone is set
+[[ -z $(date +%Z) ]] && error "could not get current system timezone" && exit 1
 debug "wintertime = \"${wintertime}\""
 
-
-### INCREMENT "hours" IF wintertime=true
+# Increment "hours" if wintertime=true and some formatfixes
 [[ ${wintertime} == true ]] && hours=$((${hours#0} + 1)) && debug "wintertime = ${wget_time} -> ${hours}:${minutes}:${seconds}" # remove leading "0" from hours to avoid some weird errors while incrementing in next line (i.e. "08:00:00" -> "8:00:00")
 [[ ${wintertime} == true && ${hours} -eq 24 ]] && hours="00" && debug " > fixed wintertime format to ${hours}:${minutes}:${seconds}" # 24h formatfix (i.e. from "24:56:00" to "00:56:00")
 [[ ${#hours} -eq 1 ]] && hours="0${hours}" && debug " > fixed wintertime format to ${hours}:${minutes}:${seconds}" # re-add leading "0" to hours (i.e. from "8:00:00" to "08:00:00")
 
 
-### CHECK WHETHER wget_time DIFFERS TO CURRENT SYSTEMTIME
-[[ ${wget_time} == "${current_time}" ]] && echo "[ gerste ] info: nothing to do here, time is correct already" && exit 0
+### CHECK IF wget_time DIFFERS TO current_time
+[[ ${wget_time} == "${current_time}" ]] && info "nothing to do here, time is correct already" && exit 0
 
 
 ### VALIDATE DATE FORMAT
 date -d "${hours}:${minutes}:${seconds}" &> /dev/null
-[[ ${?} -eq 1 ]] && echo "[ gerste ] error: invalid date format ${hours}:${minutes}:${seconds}" && exit 1
+[[ ${?} -eq 1 ]] && error "invalid date format ${hours}:${minutes}:${seconds}" && exit 1
 
 
-### CHECK IF ROOT (OR GET ROOT PERMISSIONS), SET NEW TIME AND EXIT
-if [ ${EUID} == 0 ]; then
+### CHECK IF ROOT (OR ASK FOR PERMISSIONS), SET NEW TIME AND EXIT
+if [[ ${EUID} == 0 ]]; then
     debug "executing as root"
     date -s "${hours}:${minutes}:${seconds}" &> /dev/null
 else
     [[ -z $(command -v doas) ]] && sudo date -s "${hours}:${minutes}:${seconds}" >> /dev/null || doas date -s "${hours}:${minutes}:${seconds}" >> /dev/null
 fi
-echo "Systemtime updated to ${hours}:${minutes}:${seconds}"
+info "systemtime updated to ${hours}:${minutes}:${seconds}"
 exit 0
