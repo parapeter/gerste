@@ -113,16 +113,16 @@ readonly minutes=${time_array[1]}
 readonly seconds=${time_array[2]}
 
 
-### CHECK FOR WINTERTIME
+### WINTERTIME OPERATIONS
+# Read current timezone and check if it's match CET
 current_timezone=$(date +%Z) && readonly current_timezone && debug "current_timezone = \"${current_timezone}\""
 [[ ${current_timezone} == "CET" ]] && readonly wintertime=true || readonly wintertime=false
 
 # Check if current timezone is set
 [[ -z $(date +%Z) ]] && error "could not get current system timezone" && exit 1
-debug "wintertime = \"${wintertime}\""
 
 # Increment "hours" if wintertime=true and some formatfixes
-[[ ${wintertime} == true ]] && hours=$((${hours#0} + 1)) && debug "wintertime = ${wget_time} -> ${hours}:${minutes}:${seconds}" # remove leading "0" from hours to avoid some weird errors while incrementing in next line (i.e. "08:00:00" -> "8:00:00")
+[[ ${wintertime} == true ]] && hours=$((${hours#0} + 1)) && debug "wintertime = ${wget_time} -> ${hours}:${minutes}:${seconds}" # remove leading "0" from hours to avoid some weird errors when incrementing (i.e. "08:00:00" -> "8:00:00")
 [[ ${wintertime} == true && ${hours} -eq 24 ]] && hours="00" && debug " > fixed wintertime format to ${hours}:${minutes}:${seconds}" # 24h formatfix (i.e. from "24:56:00" to "00:56:00")
 [[ ${#hours} -eq 1 ]] && hours="0${hours}" && debug " > fixed wintertime format to ${hours}:${minutes}:${seconds}" # re-add leading "0" to hours (i.e. from "8:00:00" to "08:00:00")
 
