@@ -158,17 +158,17 @@ After installation you can simply type:
 
 #### Command overview:
 
-```bash
-Use gerste WITHOUT tor:
-  > gerste
+```
+  > gerste [options]           Usage in terminal
 
-Use gerste WITH tor:
-  > gerste -t 
-  > gerste --tor
+  > gerste -t                  Use wget with torsocks to send 
+  > gerste --tor               traffic through tor network.
 
-Get current version:
-  > gerste -v
+  > gerste -v                  Get current version
   > gerste --version
+
+  > gerste -d                  Enable debugging
+  > gerste --debug
 ```
 
 ## :beetle: Debugging
