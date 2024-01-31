@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste (GERman Secure Timesync Execution)
-#      Version : 0.2.2
+#      Version : 0.2.3
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/gerste
 #      Author  : paranoidpeter
@@ -23,17 +23,19 @@
 #      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-### ERROR HANDLING
+### GENERAL
+# Error handling
 set -E
-#
-### VERSION INFOS
-readonly current_version="0.2.2"
+
+# Version infos
+readonly current_version="0.2.3"
 readonly script_name="gerste"
-#
-### ECHO HELPER
+
+# Echo helpers
 function debug { [[ ${debug_mode} == true ]] && echo "[ ${script_name} ] debug: ${1}"; }
 function error { echo "[ ${script_name} ] error: ${1}"; }
 function info { echo "[ ${script_name} ] info: ${1}"; }
+
 
 ### PARAMETER HANDLING
 for parameter in "$@"; do

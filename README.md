@@ -31,7 +31,7 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 
 4. **Optional:** Install and enable dependencies for using gerste through tor
 ```bash
-  > pacman -S tor torsock
+  > pacman -S tor torsocks
   > systemctl enable tor.service
 ```
 
@@ -53,10 +53,20 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 
 ### :globe_with_meridians: Enabling automatic timesync on network connection (NetworkManager)
 
+This dispatch script executes once after network is up.
+
+> [!WARNING]
+> Please read [NetworkManager-dispatcher(8)](https://man.archlinux.org/man/NetworkManager-dispatcher.8) and [Arch Linux - NetworkManager](https://wiki.archlinux.org/title/NetworkManager) before continuing. The following shows only the simple way.
+
+If not already done first enable and start NetworkManager-dispatcher.service:
+```bash
+  > systemctl enable --now NetworkManager-dispatcher.service
+```
+
 #### Create a NetworkManager dispatch script
 
 ```bash
-  > nano /etc/NetworkManager/dispatcher.d/01-gerste
+  > nano /etc/NetworkManager/dispatcher.d/01-gerste.sh
 ```
 
 ```bash
@@ -68,32 +78,30 @@ case "$2" in
 esac
 ```
 
-> [!NOTE]
-> This dispatch script executes once after network is up. *(For further information or to change behavior see: [NetworkManager-dispatcher(8)](https://man.archlinux.org/man/NetworkManager-dispatcher.8))*
-
 #### Enable the NetworkManager dispatch script
 
 ```bash
-  > chmod 744 /etc/NetworkManager/dispatcher.d/01-gerste
-  > chown root:root /etc/NetworkManager/dispatcher.d/01-gerste
+  > chown root:root /etc/NetworkManager/dispatcher.d/01-gerste.sh
   > systemctl restart NetworkManager
 ```
 
 ### :hourglass: Enable automatic timesync every X minutes (systemd timer)
 
-#### Create gerste.timer (i.e. every 5min)
+> [!WARNING]
+> Please read [systemd.timer(5)](https://man.archlinux.org/man/systemd.timer.5) and [Arch Linux - Systemd/Timers](https://wiki.archlinux.org/title/systemd/Timers) before continuing. The following shows only the simple way.
+
+#### Create gerste.timer (i.e. every 15min)
 
 ```bash
   > nano /usr/lib/systemd/system/gerste.timer
-  > chmod 640 /usr/lib/systemd/system/gerste.timer
 ```
 
-```
+```bash
 [Unit]
-Description=Run gerste every 5min
+Description=Run gerste every 15min
 
 [Timer]
-OnCalendar=*:0,5,10,15,20,25,30,35,40,45,50,55
+OnCalendar=*:0,15,30,45
 Persistent=true
 
 [Install]
@@ -104,10 +112,9 @@ WantedBy=timers.target
 
 ```bash
   > nano /usr/lib/systemd/system/gerste.service
-  > chmod 640 /usr/lib/systemd/system/gerste.service
 ```
 
-```
+```bash
 [Unit]
 Description=Run gerste for automatic timesync
 After=network-online.target
@@ -115,14 +122,6 @@ After=network-online.target
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/gerste
-# Some Sandboxing:
-ProtectProc=invisible
-ProcSubset=pid
-PrivateTmp=yes
-ProtectHostname=yes
-ProtectKernelTunables=yes
-ProtectKernelModules=yes
-ProtectKernelLogs=yes
 ```
 
 #### Enable gerste.timer
@@ -146,7 +145,8 @@ You can:
 :exclamation: **IMPORTANT** :exclamation: Different web servers can give different datestamps, your systemtime **can** differ more than 10 seconds on every execution. By default only 1 url is given to avoid such a behaviour.<br/>
 1.1. Change the value of `server_urls=( example.onion )` or `server_urls=( example.org )` and make sure **at least one url** is configured. `server_urls` is a space separated list.<br/>
 
-2. Use another timezone:<br />2\.1. Change the value in if-statement below `### CHECK FOR WINTERTIME` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
+2. Use another timezone:<br />
+2.1. Change the value in if-statement below `### CHECK FOR WINTERTIME` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
 
 ## :rocket: Usage
 After installation you can simply type:
@@ -183,8 +183,9 @@ If you need a more verbose debugging output you can add simple debug lines in sc
 
 ## :interrobang: Why
 
-I've started this script because of a random article which claims ntp as an insecure protocol. However, since I'm affected by the "summer-winter-time-switching-model" the most public scripts like this won't work for me out of the box. So, I've decided to write my own script with some extras.
+I've started this script because of a random article which claims NTP as an insecure protocol.. don't remember where. I'm pretty much at the beginning of my linux journey and just wanted to do something. However, since I'm affected by the "summer-winter-time-switching-model" the most public scripts like this won't work for me out of the box. So, I've decided to write my own script.<br>
+*Im open to improvements and tips.*
 
 ## :envelope: Contact
 
-Mail: peterparanoid@proton.me
+**Mail:** peterparanoid@proton.me
