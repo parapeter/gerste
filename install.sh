@@ -23,21 +23,27 @@
 #      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-### ERROR HANDLING
+### GENERAL
+# Error handling
 set -E
 
-### VERSION INFOS
-readonly current_version="1.0.0"
+# Version infos
 readonly script_name="gerste-install"
 
 ### CHECK FOR ROOT
 [[ ${EUID} != 0 ]] && echo "[ ${script_name} ] no root" && exit 1
 
-### MOVE SCRIPT TO /usr/local/bin
+### INSTALL OPERATIONS
+# Delete current version
+if [[ -f /usr/local/bin/gerste ]]; then
+    rm -f /usr/local/bin/gerste
+fi
+
+# Check for /usr/local/bin and install
 if [[ -d /usr/local/bin ]]; then
-    rm -f /usr/local/bin/gerste 
     cp ./gerste.sh /usr/local/bin/gerste >> /dev/null
     chmod 755 /usr/local/bin/gerste
 else
     echo "[ ${script_name} ] error: /usr/local/bin does not exist" && exit 1
 fi
+exit 0
