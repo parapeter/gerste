@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste (GERman Secure Timesync Execution)
-#      Version : 0.2.3
+#      Version : 0.2.4
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/gerste
 #      Author  : paranoidpeter
@@ -28,7 +28,7 @@
 set -E
 
 # Version infos
-readonly current_version="0.2.3"
+readonly current_version="0.2.4"
 readonly script_name="gerste"
 
 # Echo helpers
@@ -36,8 +36,7 @@ function debug { [[ ${debug_mode} == true ]] && echo "[ ${script_name} ] debug: 
 function error { echo "[ ${script_name} ] error: ${1}"; }
 function info { echo "[ ${script_name} ] info: ${1}"; }
 
-
-### PARAMETER HANDLING
+# Parameter handling
 for parameter in "$@"; do
     case "${parameter}" in
         -d|--debug)
@@ -58,7 +57,7 @@ done
 
 ### URL AND DEPENDENCIES CONFIG
 #  Test new URLs before adding to server_urls:
-#    > (Optional: torsocks) wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "example-url.org" 2>&1 | grep -i "Date:" | grep -o "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]"
+#    > (Optional: torsocks) wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "example-url.org" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]""
 #  Expected output format: 
 #    12:34:56
 #  server_urls is a spaced separated list, you can add as many URLs as you wish. Example URLs:
@@ -119,7 +118,7 @@ current_timezone=$(date +%Z) && readonly current_timezone && debug "current_time
 [[ ${current_timezone} == "CET" ]] && readonly wintertime=true || readonly wintertime=false
 
 # Check if current timezone is set
-[[ -z $(date +%Z) ]] && error "could not get current system timezone" && exit 1
+[[ -z ${current_timezone} ]] && error "could not get current system timezone" && exit 1
 
 # Increment "hours" if wintertime=true and some formatfixes
 [[ ${wintertime} == true ]] && hours=$((${hours#0} + 1)) && debug "wintertime = ${wget_time} -> ${hours}:${minutes}:${seconds}" # remove leading "0" from hours to avoid some weird errors when incrementing (i.e. "08:00:00" -> "8:00:00")
@@ -138,10 +137,12 @@ date -d "${hours}:${minutes}:${seconds}" &> /dev/null
 
 ### CHECK IF ROOT (OR ASK FOR PERMISSIONS), SET NEW TIME AND EXIT
 if [[ ${EUID} == 0 ]]; then
-    debug "executing as root"
     date -s "${hours}:${minutes}:${seconds}" &> /dev/null
+    [[ ${?} -eq 1 ]] && error "could not change systemtime" && exit 1
 else
-    [[ -z $(command -v doas) ]] && sudo date -s "${hours}:${minutes}:${seconds}" >> /dev/null || doas date -s "${hours}:${minutes}:${seconds}" >> /dev/null
+    [[ -z $(command -v doas) ]] && sudo date -s "${hours}:${minutes}:${seconds}" &> /dev/null || doas date -s "${hours}:${minutes}:${seconds}" &> /dev/null
+    [[ ${?} -eq 1 ]] && error "could not change systemtime" && exit 1
 fi
+
 info "systemtime updated to ${hours}:${minutes}:${seconds}"
 exit 0
