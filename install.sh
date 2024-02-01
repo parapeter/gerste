@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#      Name    : gerste-install-script
+#      Name    : gerste-install
 #      Version : 1.0.0
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/script_name
@@ -30,20 +30,32 @@ set -E
 # Version infos
 readonly script_name="gerste-install"
 
+# Echo helpers
+function error { echo "[ ${script_name} ] error: ${1}"; }
+function info { echo "[ ${script_name} ] info: ${1}"; }
+
 ### CHECK FOR ROOT
-[[ ${EUID} != 0 ]] && echo "[ ${script_name} ] no root" && exit 1
+[[ ${EUID} != 0 ]] && error "no root" && exit 1
 
 ### INSTALL OPERATIONS
 # Delete current version
 if [[ -f /usr/local/bin/gerste ]]; then
     rm -f /usr/local/bin/gerste
+    [[ ${?} -eq 1 ]] && error "could not remove current version.. please delete manually and try again" && exit 1
 fi
 
 # Check for /usr/local/bin and install
 if [[ -d /usr/local/bin ]]; then
-    cp ./gerste.sh /usr/local/bin/gerste >> /dev/null
-    chmod 755 /usr/local/bin/gerste
+    
+    cp ./gerste.sh /usr/local/bin/gerste &> /dev/null
+    [[ ${?} -eq 1 ]] && error "could not copy to /usr/local/bin.. please copy manually and change permissions" && exit 1
+    
+    chmod 755 /usr/local/bin/gerste &> /dev/null
+    [[ ${?} -eq 1 ]] && error "could not change permissions.. please do it manually for /usr/local/bin/gerste" && exit 1
+
 else
-    echo "[ ${script_name} ] error: /usr/local/bin does not exist" && exit 1
+    error "/usr/local/bin does not exist" && exit 1
 fi
+
+info "Installation complete! Make sure that /usr/local/bin is in your PATH enviroment"
 exit 0
