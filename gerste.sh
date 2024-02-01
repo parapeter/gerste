@@ -86,7 +86,6 @@ debug "dependencies check passed"
 
 ### "RANDOM" URL SELECTION
 random_url_selector=$((RANDOM % ${#server_urls[@]})) && readonly random_url_selector
-debug "${random_url_selector}"
 random_url=${server_urls[${random_url_selector}]} && readonly random_url
 debug "selected url: \"${random_url}\""
 
