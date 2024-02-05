@@ -17,16 +17,16 @@ This script may be useful for other countries¹ since not only Germany changes c
 I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/master/airootfs/usr/lib/obscurix/secure-time-sync) to write this script.
 
 ## :notebook_with_decorative_cover: Table of contents
-- [Preparation](https://github.com/paranoidpeter/gerste#hammer_and_wrench-preparation)
-- [Installation](https://github.com/paranoidpeter/gerste#cd-installation)
-  - [Install to use in terminal](https://github.com/paranoidpeter/gerste#computer-install-to-use-in-terminal)
-  - [Enabling automatic timesync on network connection (NetworkManager)](https://github.com/paranoidpeter/gerste#globe_with_meridians-enabling-automatic-timesync-on-network-connection-networkmanager)
-  - [Enable automatic timesync every X minutes (systemd timer)](https://github.com/paranoidpeter/gerste#hourglass-enable-automatic-timesync-every-x-minutes-systemd-timer)
-- [Configuration](https://github.com/paranoidpeter/gerste#gear-configuration)
-- [Usage](https://github.com/paranoidpeter/gerste#rocket-usage)
-- [Debugging](https://github.com/paranoidpeter/gerste#beetle-debugging)
-- [Why?](https://github.com/paranoidpeter/gerste#interrobang-why)
-- [Contact](https://github.com/paranoidpeter/gerste#envelope-contact)
+- [Preparation](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#hammer_and_wrench-preparation)
+- [Installation](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#cd-installation)
+  - [Install to use in terminal](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#computer-install-to-use-in-terminal)
+  - [Enabling automatic timesync on network connection (NetworkManager)](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#globe_with_meridians-enabling-automatic-timesync-on-network-connection-networkmanager)
+  - [Enable automatic timesync every X minutes (systemd timer)](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#hourglass-enable-automatic-timesync-every-x-minutes-systemd-timer)
+- [Configuration](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#gear-configuration)
+- [Usage](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#rocket-usage)
+- [Debugging](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#beetle-debugging)
+- [Why?](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#interrobang-why)
+- [Contact](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#envelope-contact)
 
 ## :hammer_and_wrench: Preparation
 
