@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste-install
-#      Version : 1.0.1
+#      Version : 1.1.0
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/script_name
 #      Author  : paranoidpeter
@@ -30,27 +30,56 @@ set -o pipefail  # don't hide errors within pipes
 
 # Version infos
 readonly SCRIPT_NAME="gerste-install"
+readonly VERSION="1.1.0"
 
 # Echo helpers
 function error { echo "[ ${SCRIPT_NAME} ] error: ${1}"; }
 function info { echo "[ ${SCRIPT_NAME} ] info: ${1}"; }
 
+# Parameter handling
+uninstall_mode=false
+for parameter in "$@"; do
+    case "$parameter" in
+        -u|--uninstall)
+            uninstall_mode=true
+            ;;
+        -v|--version)
+            echo "${SCRIPT_NAME}-${VERSION}" && exit 0
+            ;;
+        -*)
+            echo "[ ${SCRIPT_NAME} ] error: illegal parameter ${parameter}" && exit 1
+            ;;
+    esac
+done
+
 ### CHECK FOR ROOT
 [[ ${EUID} != 0 ]] && error "no root" && exit 1
 
-### INSTALL OPERATIONS
-# Delete current version
-if [[ -f /usr/local/bin/gerste ]]; then
-    rm --force /usr/local/bin/gerste
+### (UN)INSTALL OPERATIONS
+# Uninstall with parameter -u/--uninstall
+if [[ "$uninstall_mode" == true ]]; then
+    rm --force /usr/local/bin/gerste && info "deletion complete" && exit 0
 fi
 
-# Check for /usr/local/bin and install
-if [[ -d /usr/local/bin ]]; then
-    cp ./gerste.sh /usr/local/bin/gerste &> /dev/null
-    chmod 755 /usr/local/bin/gerste &> /dev/null # Change permission to: rwxr-xr-x
-else
-    error "/usr/local/bin does not exist" && exit 1
+# Search for current version and ask for deletion
+if [[ -f /usr/local/bin/gerste ]]; then
+    info "found existing version"
+    read -rp "[ ${SCRIPT_NAME} ] delete current version? [Y/n]: " ask_for_delete;
+    case "$ask_for_delete" in
+        [Nn]*)
+            mv /usr/local/bin/gerste /usr/local/bin/gerste_backup
+            info "created backup of current version at /usr/local/bin/gerste_backup"
+            ;;
+        *)
+            rm --force /usr/local/bin/gerste
+            info "deleted current version"
+            ;;
+    esac
 fi
+
+# Install
+cp ./gerste.sh /usr/local/bin/gerste &> /dev/null
+chmod 755 /usr/local/bin/gerste &> /dev/null # Change permission to: rwxr-xr-x
 
 info "Installation complete! Make sure that /usr/local/bin is in your PATH enviroment"
 exit 0
