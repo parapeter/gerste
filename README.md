@@ -25,6 +25,7 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
   - [Install to use in terminal](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#computer-install-to-use-in-terminal)
   - [Enabling automatic timesync on network connection (NetworkManager)](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#globe_with_meridians-enabling-automatic-timesync-on-network-connection-networkmanager)
   - [Enable automatic timesync every X minutes (systemd timer)](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#hourglass-enable-automatic-timesync-every-x-minutes-systemd-timer)
+  - [Uninstall](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#computer-install-to-use-in-terminal)
 - [Configuration](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#gear-configuration)
 - [Usage](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#rocket-usage)
 - [Debugging](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#beetle-debugging)
@@ -153,6 +154,12 @@ ExecStart=/usr/local/bin/gerste
 ```bash
   > systemctl daemon-reload
   > systemctl enable --now gerste.timer
+```
+
+### :wastebasket: Uninstall
+```bash
+  > cd download-path/gerste
+  > sudo ./install.sh -u
 ```
 
 ## :gear: Configuration
