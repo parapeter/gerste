@@ -9,13 +9,14 @@
 [![Badge License](https://img.shields.io/badge/License-GPL3-015d93.svg?style=for-the-badge&labelColor=blue)](https://github.com/paranoidpeter/gerste/blob/main/LICENSE)
 
 > [!WARNING]
+> Currently not working!
 > This project is still in it's early development. Help is very welcome.
 
-This tiny bash script updates your system clock. It uses  `wget`  (optionally through  `torsocks` ) to obtain the header of a given domain without downloading the website, after that it `grep`s the timestamp and, based on whether it's summer- or wintertime, it automatically updates the systemtime correctly with `date`. By default, `gerste` sends traffic through clearnet (to use `tor` &rarr; see below: :rocket: [Usage](https://github.com/paranoidpeter/gerste#rocket-usage)).
+This tiny bash script updates your system clock. It uses  `wget`  (optionally through  `torsocks` ) to obtain the header of a given domain without downloading the website, after that it `grep`s the timestamp and, based on whether it's summer- or wintertime, it automatically updates the systemtime correctly with `date`. By default, `gerste` sends traffic through clearnet (to use `tor` &rarr; see below: :rocket: [Usage](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#rocket-usage)).
 
 This script may be useful for other countries¹ since not only Germany changes clocktime twice a year. Without keeping this in mind, the first impulse for a good name was `gerste` (maybe because of the association to beer?).
 
-¹ all countries in the CET/CEST-Timezone. Otherwise change the timezone if needed (see below: :gear: [Configuration](https://github.com/paranoidpeter/gerste#gear-configuration)).
+¹ all countries in the CET/CEST-Timezone. Otherwise change the timezone if needed (see below: :gear: [Configuration](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#gear-configuration)).
 
 I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/master/airootfs/usr/lib/obscurix/secure-time-sync) to write this script.
 
@@ -45,9 +46,9 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 
 ```bash
   # Arch based systems
-  > pacman -S wget shuf date
+  > pacman -S wget date
   # Debian based systems
-  > apt-get install wget shuf date
+  > apt-get install wget date
 ```
 
 4. **Optional:** Install and enable dependencies for using gerste through tor
