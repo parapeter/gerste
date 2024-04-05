@@ -9,7 +9,6 @@
 [![Badge License](https://img.shields.io/badge/License-GPL3-015d93.svg?style=for-the-badge&labelColor=blue)](https://github.com/paranoidpeter/gerste/blob/main/LICENSE)
 
 > [!WARNING]
-> Currently not working!
 > This project is still in it's early development. Help is very welcome.
 
 This tiny bash script updates your system clock. It uses  `wget`  (optionally through  `torsocks` ) to obtain the header of a given domain without downloading the website, after that it `grep`s the timestamp and, based on whether it's summer- or wintertime, it automatically updates the systemtime correctly with `date`. By default, `gerste` sends traffic through clearnet (to use `tor` &rarr; see below: :rocket: [Usage](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#rocket-usage)).
@@ -178,7 +177,7 @@ You can:
 1.1. Change the value of `server_urls=( example.onion )` or `server_urls=( example.org )` and make sure **at least one url** is configured. `server_urls` is a space separated list.<br/>
 
 2. Use another timezone:<br />
-2.1. Change the value in the first if-statement below `### WINTERTIME OPERATIONS` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
+2.1. Change the value in the first if-statement below `# Check if timezone matches CET (wintertime)` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
 
 ## :rocket: Usage
 After installation you can simply type:
