@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste-install
-#      Version : 1.1.0
+#      Version : 1.1.1
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/script_name
 #      Author  : paranoidpeter
@@ -30,7 +30,7 @@ set -o pipefail  # don't hide errors within pipes
 
 # Version infos
 readonly SCRIPT_NAME="gerste-install"
-readonly VERSION="1.1.0"
+readonly VERSION="1.1.1"
 
 # Echo helpers
 function error { echo "[ ${SCRIPT_NAME} ] error: ${1}"; }
@@ -78,8 +78,12 @@ if [[ -f /usr/local/bin/gerste ]]; then
 fi
 
 # Install
-cp ./gerste.sh /usr/local/bin/gerste &> /dev/null
-chmod 755 /usr/local/bin/gerste &> /dev/null # Change permission to: rwxr-xr-x
+if [[ -f ./gerste.sh ]]; then
+    cp ./gerste.sh /usr/local/bin/gerste &> /dev/null
+    chmod 755 /usr/local/bin/gerste &> /dev/null # Change permission to: rwxr-xr-x
 
-info "Installation complete! Make sure that /usr/local/bin is in your PATH enviroment"
+    info "Installation complete! Make sure that /usr/local/bin is in your PATH enviroment"
+else
+    error "gerste.sh not found. Please move to downloadpath first."
+fi
 exit 0
