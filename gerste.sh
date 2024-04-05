@@ -78,7 +78,6 @@ else
     server_urls=( archlinux.org )
 fi
 
-
 ### CHECK DEPENDENCIES
 dependencies=( wget date )
 # Check installed packages
@@ -87,7 +86,6 @@ for dependency in "${dependencies[@]}"; do
 done
 debug "dependencies check passed"
 
-
 ### "RANDOM" URL SELECTION
 if [[ ${#server_urls[@]} -ne 1 ]]; then
     random_url_selector=$((RANDOM % ${#server_urls[@]})) && readonly random_url_selector
@@ -95,7 +93,6 @@ if [[ ${#server_urls[@]} -ne 1 ]]; then
 else
     random_url=${server_urls[0]} && readonly random_url
 fi
-
 
 ### GET TIME
 # Get new time via wget (with or without torsocks)
@@ -116,7 +113,6 @@ hours=${time_array[0]}
 readonly minutes=${time_array[1]}
 readonly seconds=${time_array[2]}
 
-
 ### SUMMER-/WINTERTIME OPERATIONS
 # Read current timezone and 
 current_timezone=$(date +%Z) && readonly current_timezone
@@ -124,7 +120,6 @@ debug "current_timezone = \"${current_timezone}\""
 
 # Check if timezone matches CET (wintertime)
 [[ ${current_timezone} == "CET" ]] && readonly wintertime=true || readonly wintertime=false
-
 
 # Increment hours to match CET/CEST-Timezone
 if [[ ${wintertime} == "true" ]]; then
@@ -147,14 +142,12 @@ if [[ ${#hours} -eq 1 ]]; then
     debug " > fixed timeformat to ${hours}:${minutes}:${seconds}"
 fi
 
-
 ### CHECK IF new_time DIFFERS TO current_time
 new_time="${hours}:${minutes}:${seconds}" && readonly new_time
 [[ ${new_time} == "$current_time" ]] && info "nothing to do here.. time is correct already" && exit 0
 
 ### VALIDATE DATE FORMAT
 date --date "${hours}:${minutes}:${seconds}" &> /dev/null
-
 
 ### CHECK IF ROOT, SET NEW TIME AND EXIT
 if [[ ${EUID} -eq 0 ]]; then
