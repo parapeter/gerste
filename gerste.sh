@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste (GERman Secure Timesync Execution)
-#      Version : 0.2.6
+#      Version : 0.2.7
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/gerste
 #      Author  : paranoidpeter
@@ -29,17 +29,17 @@ set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 
 # Version infos
-readonly VERSION="0.2.6"
+readonly VERSION="0.2.7"
 readonly SCRIPT_NAME="gerste"
 
+# Printhelpers
+function error { echo "[ ${SCRIPT_NAME} ] error: ${1}"; }
+function info { echo "[ ${SCRIPT_NAME} ] info: ${1}"; }
+
 # Parameter handling
-debug_enabled=false
 tor_enabled=false
 for parameter in "$@"; do
     case "$parameter" in
-        -d|--debug)
-            debug_enabled=true
-            ;;
         -t|--tor)
             tor_enabled=true
             ;;
@@ -47,22 +47,13 @@ for parameter in "$@"; do
             echo "${SCRIPT_NAME}-${VERSION}" && exit 0
             ;;
         -*)
-            echo "[ ${SCRIPT_NAME} ] error: illegal parameter ${parameter}" && exit 1
+            error "illegal parameter: ${parameter}" && exit 1
             ;;
     esac
 done
 
-# Helpers
-function error { echo "[ ${SCRIPT_NAME} ] error: ${1}"; }
-function info { echo "[ ${SCRIPT_NAME} ] info: ${1}"; }
-function debug {
-    if [[ "$debug_enabled" == "true" ]]; then
-        echo "[ ${SCRIPT_NAME} ] debug: ${1}"
-    fi
-}
-
 ### SETTING DEPENDENCIES AND SET URLs
-# NOTE: Test new URLs before adding to server_urls; Expected output format: 12:34:56:
+# NOTE: Test new URLs before adding to server_urls; Expected output format: 12:34:56
 #       > (Optional: torsocks) wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "example-url.org" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]""
 if [[ "$tor_enabled" == "true" ]]; then
  
@@ -84,28 +75,28 @@ dependencies=( wget date )
 for dependency in "${dependencies[@]}"; do
     [[ -z $(command -v "$dependency") ]] && error "${dependency} is not installed" && exit 1
 done
-debug "dependencies check passed"
 
 ### "RANDOM" URL SELECTION
-if [[ ${#server_urls[@]} -ne 1 ]]; then
+if [[ ${#server_urls[@]} -lt 1 ]]; then
+    error "no URLs given"
+elif [[ ${#server_urls[@]} -eq 1 ]]; then
+    random_url=${server_urls[0]} && readonly random_url
+
+else
     random_url_selector=$((RANDOM % ${#server_urls[@]})) && readonly random_url_selector
     random_url=${server_urls[${random_url_selector}]} && readonly random_url
-else
-    random_url=${server_urls[0]} && readonly random_url
 fi
 
 ### GET TIME
 # Get new time via wget (with or without torsocks)
 if [[ "$tor_enabled" == "true" ]]; then
-    wget_time=$(torsocks wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly wget_time && debug "wget time WITH torsocks"
+    wget_time=$(torsocks wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly wget_time
 else
-    wget_time=$(wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly wget_time && debug "wget time WITHOUT torsocks"
+    wget_time=$(wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly wget_time
 fi
-debug "wget server time = ${wget_time}"
 
 # Get current systemtime
 current_time=$(date +%H:%M:%S) && readonly current_time
-debug "current systemtime: ${current_time}"
 
 # Split wget_time into hours, minutes and seconds
 IFS=':' read -ra time_array <<< "$wget_time"
@@ -116,7 +107,6 @@ readonly seconds=${time_array[2]}
 ### SUMMER-/WINTERTIME OPERATIONS
 # Read current timezone and 
 current_timezone=$(date +%Z) && readonly current_timezone
-debug "current_timezone = \"${current_timezone}\""
 
 # Check if timezone matches CET (wintertime)
 [[ ${current_timezone} == "CET" ]] && readonly wintertime=true || readonly wintertime=false
@@ -124,22 +114,18 @@ debug "current_timezone = \"${current_timezone}\""
 # Increment hours to match CET/CEST-Timezone
 if [[ ${wintertime} == "true" ]]; then
     hours=$((${hours#0} + 1)) # remove leading "0" from hours and increment by 1 (i.e. "07:00:00" -> "8:00:00")
-    debug "wintertime = ${wget_time} -> ${hours}:${minutes}:${seconds}"
 else
     hours=$((${hours#0} + 2)) # remove leading "0" from hours and increment by 2 (i.e. "07:00:00" -> "9:00:00")
-    debug "summertime = ${wget_time} -> ${hours}:${minutes}:${seconds}"
 fi
 
 # 24h formatfix (i.e. from "24:56:00" to "00:56:00")
 if [[ ${hours} -eq 24 ]]; then
     hours="00"
-    debug " > fixed timeformat to ${hours}:${minutes}:${seconds}"
 fi
 
 # Re-add leading "0" to hours (i.e. from "9:00:00" to "09:00:00")
 if [[ ${#hours} -eq 1 ]]; then
     hours="0${hours}"
-    debug " > fixed timeformat to ${hours}:${minutes}:${seconds}"
 fi
 
 ### CHECK IF new_time DIFFERS TO current_time
@@ -147,12 +133,12 @@ new_time="${hours}:${minutes}:${seconds}" && readonly new_time
 [[ ${new_time} == "$current_time" ]] && info "nothing to do here.. time is correct already" && exit 0
 
 ### VALIDATE DATE FORMAT
-date --date "${hours}:${minutes}:${seconds}" &> /dev/null
+date --date "$new_time" &> /dev/null
 
 ### CHECK IF ROOT, SET NEW TIME AND EXIT
 if [[ ${EUID} -eq 0 ]]; then
-    date --set "${hours}:${minutes}:${seconds}" &> /dev/null
-    info "systemtime updated to ${hours}:${minutes}:${seconds}"
+    date --set "$new_time" &> /dev/null
+    info "systemtime updated to ${new_time}"
     exit 0
 else
     if [[ -n $(command -v doas) ]]; then
