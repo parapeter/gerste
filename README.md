@@ -28,8 +28,6 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
   - [Uninstall](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#computer-install-to-use-in-terminal)
 - [Configuration](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#gear-configuration)
 - [Usage](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#rocket-usage)
-- [Debugging](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#beetle-debugging)
-- [Why?](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#interrobang-why)
 - [Contact](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#envelope-contact)
 
 ## :hammer_and_wrench: Preparation
@@ -197,24 +195,7 @@ After installation you can simply type:
 
   > gerste -v                  Get current version
   > gerste --version
-
-  > gerste -d                  Enable debugging
-  > gerste --debug
 ```
-
-## :beetle: Debugging
-
-##### Enable debugging with "-d" or "--debug" parameter
-
-```bash
-  > gerste -d
-  > gerste --debug
-```
-If you need a more verbose debugging output you can add simple debug lines in script &rarr; `debug "text"`
-
-## :interrobang: Why
-
-I've started this script because of a random article which claims NTP as an insecure protocol.. don't remember where. I'm pretty much at the beginning of my linux journey and just wanted to do something. *Im open to improvements and tips.* However, since I'm affected by the "summer-winter-time-switching-model" the most public scripts like this won't work for me out of the box. So, I've decided to write my own script.<br>
 
 ## :envelope: Contact
 
