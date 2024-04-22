@@ -78,7 +78,7 @@ done
 
 ### "RANDOM" URL SELECTION
 if [[ ${#server_urls[@]} -lt 1 ]]; then
-    error "no URLs given"
+    error "no URLs given" && exit 1
 elif [[ ${#server_urls[@]} -eq 1 ]]; then
     random_url=${server_urls[0]} && readonly random_url
 
