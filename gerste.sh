@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste (GERman Secure Timesync Execution)
-#      Version : 0.2.7
+#      Version : 0.2.8
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/gerste
 #      Author  : paranoidpeter
@@ -29,12 +29,17 @@ set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 
 # Version infos
-readonly VERSION="0.2.7"
+readonly VERSION="0.2.8"
 readonly SCRIPT_NAME="gerste"
 
 # Printhelpers
 function error { echo "[ ${SCRIPT_NAME} ] error: ${1}"; }
 function info { echo "[ ${SCRIPT_NAME} ] info: ${1}"; }
+
+# Check for root
+if [[ ${EUID} -ne 0 ]]; then
+    error "no root" && exit 1
+fi
 
 # Parameter handling
 tor_enabled=false
@@ -135,18 +140,7 @@ new_time="${hours}:${minutes}:${seconds}" && readonly new_time
 ### VALIDATE DATE FORMAT
 date --date "$new_time" &> /dev/null
 
-### CHECK IF ROOT, SET NEW TIME AND EXIT
-if [[ ${EUID} -eq 0 ]]; then
-    date --set "$new_time" &> /dev/null
-    info "systemtime updated to ${new_time}"
-    exit 0
-else
-    if [[ -n $(command -v doas) ]]; then
-        doas date --set "$new_time" &> /dev/null
-        info "systemtime updated to ${new_time}"
-    else
-        sudo date --set "$new_time" &> /dev/null
-        info "systemtime updated to ${new_time}"
-    fi
-fi
+### SET NEW TIME AND EXIT
+date --set "$new_time" &> /dev/null
+info "systemtime updated to ${new_time}"
 exit 0
