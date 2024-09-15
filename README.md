@@ -22,12 +22,9 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 ## :notebook_with_decorative_cover: Table of contents
 - [Preparation](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#hammer_and_wrench-preparation)
 - [Installation](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#cd-installation)
-  - [Install to use in terminal](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#computer-install-to-use-in-terminal)
-  - [Enabling automatic timesync on network connection (NetworkManager)](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#globe_with_meridians-enabling-automatic-timesync-on-network-connection-networkmanager)
-  - [Enable automatic timesync every X minutes (systemd timer)](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#hourglass-enable-automatic-timesync-every-x-minutes-systemd-timer)
-  - [Uninstall](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#computer-install-to-use-in-terminal)
 - [Configuration](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#gear-configuration)
 - [Usage](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#rocket-usage)
+- [Uninstall](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#wastebasket-uninstall)
 - [Contact](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#envelope-contact)
 
 ## :hammer_and_wrench: Preparation
@@ -63,101 +60,11 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 
 ## :cd: Installation
 
-### :computer: Install to use in terminal
-
 ```bash
   > git clone https://github.com/paranoidpeter/gerste/
   > cd gerste
   > sudo chmod 755 install.sh
   > sudo ./install.sh
-```
-> [!NOTE]
-> Make sure this step is done before enable automatic timesync options below.
-
-### :globe_with_meridians: Enabling automatic timesync on network connection (NetworkManager)
-
-> [!WARNING]
-> Please read [NetworkManager-dispatcher(8)](https://man.archlinux.org/man/NetworkManager-dispatcher.8) and [Arch Linux - NetworkManager](https://wiki.archlinux.org/title/NetworkManager) before continuing. The following shows only the simple way which may lead to errors.
-
-This dispatch script executes once after network is up.
-
-**First:** If not already done first enable and start NetworkManager-dispatcher.service:
-```bash
-  > systemctl enable --now NetworkManager-dispatcher.service
-```
-
-#### Create a NetworkManager dispatch script
-
-```bash
-  > nano /etc/NetworkManager/dispatcher.d/01-gerste.sh
-```
-
-```bash
-#!/bin/bash
-case "$2" in
-  up)
-    /usr/local/bin/gerste
-    ;;
-esac
-```
-
-#### Enable the NetworkManager dispatch script
-
-```bash
-  > chown root:root /etc/NetworkManager/dispatcher.d/01-gerste.sh
-  > systemctl restart NetworkManager
-```
-
-### :hourglass: Enable automatic timesync every X minutes (systemd timer)
-
-> [!WARNING]
-> Please read [systemd.timer(5)](https://man.archlinux.org/man/systemd.timer.5) and [Arch Linux - Systemd/Timers](https://wiki.archlinux.org/title/systemd/Timers) before continuing. The following shows only the simple way which may lead to errors.
-
-#### Create gerste.timer (i.e. every 15min)
-
-```bash
-  > nano /usr/lib/systemd/system/gerste.timer
-```
-
-```bash
-[Unit]
-Description=Run gerste every 15min
-
-[Timer]
-OnCalendar=*:0,15,30,45
-Persistent=true
-
-[Install]
-WantedBy=timers.target
-```
-
-#### Create gerste.service
-
-```bash
-  > nano /usr/lib/systemd/system/gerste.service
-```
-
-```bash
-[Unit]
-Description=Run gerste for automatic timesync
-After=network-online.target
-
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/gerste
-```
-
-#### Enable gerste.timer
-
-```bash
-  > systemctl daemon-reload
-  > systemctl enable --now gerste.timer
-```
-
-### :wastebasket: Uninstall
-```bash
-  > cd download-path/gerste
-  > sudo ./install.sh -u
 ```
 
 ## :gear: Configuration
@@ -174,7 +81,7 @@ You can:
 :exclamation: **IMPORTANT** :exclamation: Different web servers can give different datestamps, your systemtime **can** differ more than 10 seconds on every execution. By default only 1 URL is given to avoid such a behaviour.<br/>
 1.1. Change the value of `server_urls=( example.onion )` or `server_urls=( example.org )` and make sure **at least one url** is configured. `server_urls` is a space separated list.<br/>
 
-2. Use another timezone:<br />
+2. Use another timezone:<br/>
 2.1. Change the value in the first if-statement below `# Check if timezone matches CET (wintertime)` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
 
 ## :rocket: Usage
@@ -183,7 +90,7 @@ After installation you can simply type:
   > gerste
 ```
 > [!NOTE]
-> Run without root privileges is possible. You will be prompted for sudo or doas password since changing systemtime is not supported for unprivileged users.
+> Run without root privileges is not possible.
 
 #### Command overview:
 
@@ -195,6 +102,12 @@ After installation you can simply type:
 
   > gerste -v                  Get current version
   > gerste --version
+```
+
+## :wastebasket: Uninstall
+```bash
+  > cd download-path/gerste
+  > sudo ./install.sh -u
 ```
 
 ## :envelope: Contact
