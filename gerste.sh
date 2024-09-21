@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#      Name    : gerste (GERman Secure Timesync Execution)
+#      Name    : gerste (GERman Secure Time Extractor)
 #      Version : 0.2.8
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/gerste
