@@ -1,6 +1,6 @@
 # :ear_of_rice: GERSTE
 
-***GER**man-**S**ecure-**T**imesync-**E**xecution*
+***GER**man-**S**ecure-**T**ime-**E**xtractor*
 
 <img src="https://i.ibb.co/DbXkYy3/barley-field-8230-960-720.jpg" width="300" height="200">
 
