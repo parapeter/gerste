@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste-install
-#      Version : 1.1.1
+#      Version : 1.1.2
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/gerste/blob/main/install.sh
 #      Author  : paranoidpeter
@@ -30,11 +30,16 @@ set -o pipefail  # don't hide errors within pipes
 
 # Version infos
 readonly SCRIPT_NAME="gerste-install"
-readonly VERSION="1.1.1"
+readonly VERSION="1.1.2"
 
 # Echo helpers
-function error { echo "[ ${SCRIPT_NAME} ] error: ${1}"; }
-function info { echo "[ ${SCRIPT_NAME} ] info: ${1}"; }
+function error {
+    echo "[ ${SCRIPT_NAME} ] error: ${1}"
+    exit 1
+}
+function info {
+    echo "[ ${SCRIPT_NAME} ] info: ${1}"
+}
 
 # Parameter handling
 uninstall_mode=false
@@ -46,21 +51,27 @@ for parameter in "$@"; do
         -v|--version)
             echo "${SCRIPT_NAME}-${VERSION}" && exit 0
             ;;
-        -*)
+        *)
             echo "[ ${SCRIPT_NAME} ] error: illegal parameter ${parameter}" && exit 1
             ;;
     esac
 done
 
 ### CHECK FOR ROOT
-[[ ${EUID} != 0 ]] && error "no root" && exit 1
-
-### (UN)INSTALL OPERATIONS
-# Uninstall with parameter -u/--uninstall
-if [[ "$uninstall_mode" == true ]]; then
-    rm --force /usr/local/bin/gerste && info "deletion complete" && exit 0
+if [[ ${EUID} != 0 ]]; then
+    error "no root"
 fi
 
+### UNINSTALL OPERATIONS
+# Uninstall with parameter -u/--uninstall
+if [[ "$uninstall_mode" == true ]]; then
+    rm --force /usr/local/bin/gerste
+    rm --force /etc/gerste.conf
+    info "deletion complete"
+    exit 0
+fi
+
+### INSTALL OPERATIONS
 # Search for current version and ask for deletion
 if [[ -f /usr/local/bin/gerste ]]; then
     info "found existing version"
@@ -78,12 +89,19 @@ if [[ -f /usr/local/bin/gerste ]]; then
 fi
 
 # Install
-if [[ -f ./gerste.sh ]]; then
+if [[ -f ./gerste.sh ]] && [[ -f ./gerste.conf ]]; then
+
+    # Script
     cp ./gerste.sh /usr/local/bin/gerste &> /dev/null
     chmod 755 /usr/local/bin/gerste &> /dev/null # Change permission to: rwxr-xr-x
 
+    # Config
+    cp ./gerste.conf /etc/gerste.conf &> /dev/null
+    chmod 600 /etc/gerste.conf &> /dev/null # Change permission to: rw-------
+
     info "Installation complete! Make sure that /usr/local/bin is in your PATH enviroment"
+
 else
-    error "gerste.sh not found. Please move to downloadpath first."
+    error "gerste.sh not found. Please cd to downloadpath first."
 fi
 exit 0
