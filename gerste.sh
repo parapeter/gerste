@@ -88,7 +88,7 @@ if [[ "$tor_enabled" == "true" ]]; then
     fi
 
     # Load TOR URLs from /etc/gerste.conf
-    readarray -t server_urls < <(awk '/^\[TOR-URLS\]/{found=1; next} /^\[/{found=0} found && !/^#/ && NF{print}' /home/rene/git/gerste/gerste.conf)
+    readarray -t server_urls < <(awk '/^\[TOR-URLS\]/{found=1; next} /^\[/{found=0} found && !/^#/ && NF{print}' /etc/gerste.conf)
 
     for url in "${server_urls[@]}"; do
         if ! [[ $url =~ \.onion$ ]]; then
@@ -99,7 +99,7 @@ if [[ "$tor_enabled" == "true" ]]; then
 else
 
     # Load clearweb URLs from /etc/gerste.conf
-    readarray -t server_urls < <(awk '/^\[CLEARWEB-URLS\]/{found=1; next} /^\[/{found=0} found && !/^#/ && NF{print}' /home/rene/git/gerste/gerste.conf)
+    readarray -t server_urls < <(awk '/^\[CLEARWEB-URLS\]/{found=1; next} /^\[/{found=0} found && !/^#/ && NF{print}' /etc/gerste.conf)
     
     # Validate URLs
     for url in "${server_urls[@]}"; do
