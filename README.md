@@ -1,6 +1,6 @@
 # :ear_of_rice: GERSTE
 
-***GER**man-**S**ecure-**T**ime-**E**xtractor*
+***GER**man-**S**ecure-**T**ime-**E**ditor*
 
 <img src="https://i.ibb.co/DbXkYy3/barley-field-8230-960-720.jpg" width="300" height="200">
 
@@ -9,13 +9,13 @@
 [![Badge License](https://img.shields.io/badge/License-GPL3-015d93.svg?style=for-the-badge&labelColor=blue)](https://github.com/paranoidpeter/gerste/blob/main/LICENSE)
 
 > [!WARNING]
-> This project is still in it's early development. Help is very welcome.
+> This project is still in it's early development and should not be used in any production environment without extensive testing. Help is always welcome.
 
-This tiny bash script updates your system clock. It uses  `wget`  (optionally through  `torsocks` ) to obtain the header of a given domain without downloading the website, after that it `grep`s the timestamp and, based on whether it's summer- or wintertime, it automatically updates the systemtime correctly with `date`. By default, `gerste` sends traffic through clearnet (to use `tor` &rarr; see below: :rocket: [Usage](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#rocket-usage)).
+This tiny bash script updates your system clock. It uses  `wget`  (optionally through  `torsocks` ) to obtain the header of a given domain without downloading the website, after that it `grep`s the timestamp and, based on whether it's summer- or wintertime, it automatically updates the systemtime correctly with `date`. By default `gerste` sends traffic through clearnet, but sending traffic through `tor` is available &rarr; see: :rocket: [Usage](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#rocket-usage)).
 
 This script may be useful for other countries¹ since not only Germany changes clocktime twice a year. Without keeping this in mind, the first impulse for a good name was `gerste` (maybe because of the association to beer?).
 
-¹ all countries in the CET/CEST-Timezone. Otherwise change the timezone if needed (see below: :gear: [Configuration](https://github.com/paranoidpeter/gerste?tab=readme-ov-file#gear-configuration)).
+¹ all countries in CET/CEST-Timezone.
 
 I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/master/airootfs/usr/lib/obscurix/secure-time-sync) to write this script.
 
@@ -29,7 +29,7 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 
 ## :hammer_and_wrench: Preparation
 
-1. The executing user needs root access (or sudo/doas)
+1. The executing user needs root access
 2. Make sure that `/etc/localtime` is set correctly
 
 ```bash
@@ -40,9 +40,9 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 
 ```bash
   # Arch based systems
-  > pacman -S wget date
+  > pacman -S wget
   # Debian based systems
-  > apt-get install wget date
+  > apt install wget
 ```
 
 4. **Optional:** Install and enable dependencies for using gerste through tor
@@ -50,13 +50,13 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
   # Arch based systems
   > pacman -S tor torsocks
   # Debian based systems
-  > apt-get install tor torsocks
+  > apt install tor torsocks
 
-  > systemctl enable --now tor.service
+  > systemctl start tor.service
 ```
 
 > [!NOTE]
-> Systemd is used to verify whether tor.service is running. If running another init system you have to change the values in code below "# Check if tor.service is active"
+> Systemd is not required for execution
 
 ## :cd: Installation
 
@@ -75,30 +75,18 @@ Open the script with your favourite text editor:
   > nano /usr/local/bin/gerste
 ```
 
-You can:
-
-1. Add or delete URLs which `wget` will trigger:<br/>
-:exclamation: **IMPORTANT** :exclamation: Different web servers can give different datestamps, your systemtime **can** differ more than 10 seconds on every execution. By default only 1 URL is given to avoid such a behaviour.<br/>
-1.1. Change the value of `server_urls=( example.onion )` or `server_urls=( example.org )` and make sure **at least one url** is configured. `server_urls` is a space separated list.<br/>
-
-2. Use another timezone:<br/>
-2.1. Change the value in the first if-statement below `# Check if timezone matches CET (wintertime)` from `CET` to your preference. **It needs to be your winter-time-zone to keep functionality**.
+You can add or delete URLs which `wget` will trigger:<br/>
+Change the value of `server_urls=( example.onion )` or `server_urls=( https://example.org )` and make sure **at least one url** is configured. `server_urls` is a space separated list.<br/>
+> [!WARNING] Different web servers can give different datestamps.
 
 ## :rocket: Usage
-After installation you can simply type:
-```bash
-  > gerste
-```
-> [!NOTE]
-> Run without root privileges is not possible.
-
 #### Command overview:
 
 ```
-  > gerste [options]           Usage in terminal
+  > gerste [options]           Usage in terminal (only as root)
 
-  > gerste -t                  Use wget with torsocks to send 
-  > gerste --tor               traffic through tor network.
+  > gerste -t                  Use torsocks to send traffic
+  > gerste --tor               through tor network.
 
   > gerste -v                  Get current version
   > gerste --version
