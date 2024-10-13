@@ -69,15 +69,15 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 
 ## :gear: Configuration
 
-Open the script with your favourite text editor:
+Open the config file with your favourite text editor:
 
 ```bash
-  > nano /usr/local/bin/gerste
+  > nano /etc/gerste.conf
 ```
 
-You can add or delete URLs which `wget` will trigger:<br/>
-Change the value of `server_urls=( example.onion )` or `server_urls=( https://example.org )` and make sure **at least one url** is configured. `server_urls` is a space separated list.<br/>
-> [!WARNING] Different web servers can give different datestamps.
+You can add or delete URLs which `wget` will trigger. Just add or remove domains below  `[TOR-URLS]` or `[CLEARWEB-URLS]`. Each section has a line separated list.<br/>
+> [!WARNING] 
+> Different web servers can give different timestamps.
 
 ## :rocket: Usage
 #### Command overview:
