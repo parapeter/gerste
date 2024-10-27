@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #      Name    : gerste (GERman Secure Time Editor)
-#      Version : 0.2.9
+#      Version : 0.3.0
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/paranoidpeter/gerste
 #      Author  : paranoidpeter
@@ -28,15 +28,15 @@ set -o errexit   # abort on nonzero exitstatus
 set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 
-# Versioninfos
-readonly VERSION="0.2.9"
-readonly SCRIPT_NAME="gerste"
-
 # Check root
 if [[ ${EUID} -ne 0 ]]; then
     echo "[ ${SCRIPT_NAME} ] error: root permissions needed"
     exit 1
 fi
+
+# Versioninfos
+readonly VERSION="0.3.0"
+readonly SCRIPT_NAME="gerste"
 
 # Printhelpers
 function error {
@@ -92,22 +92,13 @@ if [[ "$tor_enabled" == "true" ]]; then
 
     for url in "${server_urls[@]}"; do
         if ! [[ $url =~ \.onion$ ]]; then
-            error "invalid URL format: ${url}. URL must end with \".onion\""
+            error "invalid onion URL format: ${url}. URL should end with \".onion\""
         fi
     done
 
 else
-
     # Load clearweb URLs from /etc/gerste.conf
     readarray -t server_urls < <(awk '/^\[CLEARWEB-URLS\]/{found=1; next} /^\[/{found=0} found && !/^#/ && NF{print}' /etc/gerste.conf)
-    
-    # Validate URLs
-    for url in "${server_urls[@]}"; do
-        if ! [[ $url =~ ^https://.+ ]]; then
-            error "invalid URL format: ${url}. URL must start with \"https://\""
-        fi
-    done
-
 fi
 
 ### "RANDOM" URL SELECTION
@@ -124,14 +115,14 @@ fi
 if [[ "$tor_enabled" == "true" ]]; then
 
     # Get new time via wget (WITH torsocks) + recheck if execution was successful
-    if ! fetched_time=$(torsocks wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly fetched_time; then
+    if ! fetched_time=$(torsocks wget --server-response --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --no-cache --delete-after --quiet"$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly fetched_time; then
         error "could not resolve URL: ${random_url}"
     fi
 
 else
 
     # Get new time via wget (WITHOUT torsocks) + recheck if execution was successful
-    if ! fetched_time=$(wget -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly fetched_time; then
+    if ! fetched_time=$(wget --server-response --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --no-cache --delete-after --quiet "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly fetched_time; then
         error "could not resolve URL: ${random_url}"
     fi
 
@@ -151,7 +142,7 @@ else
 fi
 
 ### SUMMER-/WINTERTIME OPERATIONS
-# Read current timezone and 
+# Read current timezone
 current_timezone=$(date +%Z) && readonly current_timezone
 
 # Check if timezone matches CET (wintertime)
@@ -202,9 +193,10 @@ fi
 if [[ ${new_time} == "$current_time" ]]; then
     info "nothing to do here.. time is correct already"
     exit 0
+else
+    # Set new systemtime
+    date --set "$new_time" &> /dev/null
+    info "systemtime updated to ${new_time}"
+    exit 0
 fi
-
-# Set new systemtime
-date --set "$new_time" &> /dev/null
-info "systemtime updated to ${new_time}"
-exit 0
+exit 1 # Should not end here
