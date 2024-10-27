@@ -28,15 +28,15 @@ set -o errexit   # abort on nonzero exitstatus
 set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 
+# Versioninfos
+readonly VERSION="0.3.0"
+readonly SCRIPT_NAME="gerste"
+
 # Check root
 if [[ ${EUID} -ne 0 ]]; then
     echo "[ ${SCRIPT_NAME} ] error: root permissions needed"
     exit 1
 fi
-
-# Versioninfos
-readonly VERSION="0.3.0"
-readonly SCRIPT_NAME="gerste"
 
 # Printhelpers
 function error {
@@ -73,6 +73,9 @@ dependencies=( wget date grep )
 for dependency in "${dependencies[@]}"; do
     [[ -z $(command -v "$dependency") ]] && error "${dependency} is not installed"
 done
+
+# Get wget execution path
+WGET_PATH=$(which wget) && readonly WGET_PATH
 
 # Set URLs 
 # NOTE: Test new URLs before adding to server_urls; Expected output format: 12:34:56
@@ -113,19 +116,16 @@ fi
 
 ### TIME EXTRACTION
 if [[ "$tor_enabled" == "true" ]]; then
-
     # Get new time via wget (WITH torsocks) + recheck if execution was successful
-    if ! fetched_time=$(torsocks wget --server-response --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --no-cache --delete-after --quiet"$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly fetched_time; then
-        error "could not resolve URL: ${random_url}"
-    fi
-
+    fetched_time=$(torsocks "$WGET_PATH" --server-response --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --no-cache --delete-after "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly fetched_time
 else
-
     # Get new time via wget (WITHOUT torsocks) + recheck if execution was successful
-    if ! fetched_time=$(wget --server-response --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --no-cache --delete-after --quiet "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly fetched_time; then
-        error "could not resolve URL: ${random_url}"
-    fi
+    fetched_time=$("$WGET_PATH" -S --spider -t 1 --timeout=10 --max-redirect=0 --no-cookies --delete-after "$random_url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]") && readonly fetched_time
+fi
 
+# Check if fetched_time is filled before further processing
+if [[ -z "$fetched_time" ]]; then
+    error "could not resolve URL: ${random_url}"
 fi
 
 # Get current systemtime to compare later
@@ -176,7 +176,7 @@ if ! [[ ${hours} =~ ^[0-2][0-9]$ && ${minutes} =~ ^[0-5][0-9]$ && ${seconds} =~ 
     error "fetched time is not valid: ${hours}:${minutes}:${seconds}"
 fi
 
-if [[ "${hours}" > "24" ]]; then
+if [[ "$hours" > "24" ]]; then
     error "fetched time is not valid: ${hours}:${minutes}:${seconds}"
 fi
 
@@ -199,4 +199,3 @@ else
     info "systemtime updated to ${new_time}"
     exit 0
 fi
-exit 1 # Should not end here
