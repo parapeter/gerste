@@ -61,7 +61,7 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 ## :cd: Installation
 
 ```bash
-  > git clone https://github.com/paranoidpeter/gerste/
+  > git clone https://github.com/paranoidpeter/gerste.git
   > cd gerste
   > sudo chmod 755 install.sh
   > sudo ./install.sh
@@ -75,9 +75,10 @@ Open the config file with your favourite text editor:
   > nano /etc/gerste.conf
 ```
 
-You can add or delete URLs which `wget` will trigger. Just add or remove domains below  `[TOR-URLS]` or `[CLEARWEB-URLS]`. Each section has a line separated list.<br/>
-> [!WARNING] 
-> Different web servers can give different timestamps.
+You can add or delete URLs which `wget` will trigger.
+For `[CLEARWEB-URLS]` you could add `http- or https-URLs` and `plain IP addresses` with or without a port. For `[TOR-URLS]` you are forced to enter a `.onion` URL.<br/>
+> [!NOTE] 
+> By default the config file is only read- and writable by root.
 
 ## :rocket: Usage
 #### Command overview:
