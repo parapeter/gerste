@@ -3,11 +3,11 @@
 #      Name    : gerste-install
 #      Version : 1.1.2
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
-#      GitHub  : https://github.com/paranoidpeter/gerste/blob/main/install.sh
-#      Author  : paranoidpeter
-#      Mail    : peterparanoid@proton.me
+#      GitHub  : https://github.com/parapeter/gerste/blob/main/install.sh
+#      Author  : parapeter
+#      Mail    : parapeter-git@proton.me
 #
-#      Copyright (c) 2024 paranoidpeter
+#      Copyright (c) 2024 parapeter
 #
 #      This program is free software: you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
