@@ -4,8 +4,7 @@
 #      Version : 1.1.2
 #      License : GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0)
 #      GitHub  : https://github.com/parapeter/gerste/blob/main/install.sh
-#      Author  : parapeter
-#      Mail    : parapeter-git@proton.me
+#      Author  : parapeter <parapeter-git@proton.me>
 #
 #      Copyright (c) 2024 parapeter
 #
@@ -93,7 +92,7 @@ if [[ -f ./gerste.sh ]] && [[ -f ./gerste.conf ]]; then
 
     # Script
     cp ./gerste.sh /usr/local/bin/gerste &> /dev/null
-    chmod 755 /usr/local/bin/gerste &> /dev/null # Change permission to: rwxr-xr-x
+    chmod 0750 /usr/local/bin/gerste &> /dev/null # Change permission to: rwxr-xr-x
 
     # Config
     cp ./gerste.conf /etc/gerste.conf &> /dev/null
