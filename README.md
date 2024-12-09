@@ -17,13 +17,13 @@
 > [!NOTE]
 > This project is still in it's early development and should not be used in any production environment. Help is always welcome.
 
-This tiny bash script updates your system clock *(once, no daemon)*. It uses  `curl` to obtain the header of a given domain or IP. After that `grep` will extract the timestamp and, based on whether it's summer or wintertime, it automatically updates the systemtime with `date`. By default `gerste` sends traffic through https (optionally through `tor`).
+This tiny bash script provides a one-time system clock update *(no daemon)*. Utilizing `curl`, it fetches the HTTP headers from a specified domain or IP address. From there, `grep` extracts the timestamp, and based on summer or wintertime status, the system clock gets adjusted using the `date` command. By default, traffic is routed over HTTPS, with an optional way to route traffic through `tor`.
 
-This script may be useful for other countries¹ since not only Germany changes clocktime twice a year. Without keeping this in mind, the first impulse for a good name was `gerste` *(maybe because of the association to beer?)*.
+While originally designed for Germany, this script is adaptable to any country in the CET/CEST timezone, as they also change clocks. The name `gerste` was chosen, likely influenced by its connection to beer (?).
 
 ¹ all countries in CET/CEST-Timezone.
 
-I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/master/airootfs/usr/lib/obscurix/secure-time-sync) to write this script.
+Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/master/airootfs/usr/lib/obscurix/secure-time-sync).
 
 ## :notebook_with_decorative_cover: Table of contents
 - [Preparation](https://github.com/parapeter/gerste?tab=readme-ov-file#hammer_and_wrench-preparation)
@@ -46,12 +46,14 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
 
 ```bash
   # Arch based systems
-  $ pacman -S curl
+  $ pacman -S curl date grep
   # Debian based systems
-  $ apt install curl
+  $ apt install curl date grep
 ```
 
 4. **Optional:** Install and enable dependencies for using gerste through tor
+*(Ensure you use the standard port 9050 for `tor`. Otherwise, you'll need to modify the script accordingly)*
+
 ```bash
   # Arch based systems
   $ pacman -S tor
@@ -61,6 +63,7 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
   $ systemctl start tor.service
 ```
 
+
 ## :cd: Installation
 
 ```bash
@@ -69,21 +72,24 @@ I got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/m
   $ ./install.sh
 ```
 
+*Feel free to handle it manually if you prefer.*
+
 ## :gear: Configuration
 
-Open the config file with your favourite text editor:
+Open the configuration file using your preferred text editor:
+
 
 ```bash
   $ nano /etc/gerste.conf
 ```
 
-You can add or delete URLs (or IPs) which `curl` will trigger.
-For `[HTTPS-URLS]` you can only ad `https URLs and IP addresses` and for `[TOR-URLS]` you are forced to enter a `.onion` URL.<br/>
+You can add or remove URLs *(or IPs)* that `curl` will query. For `[HTTPS-URLs]`, only https URLs and IP addresses are accepted, while for `[TOR-URLs]`, you must provide `.onion` URLs.
 
 > [!NOTE] 
 > By default the config file is only read- and writable by root.
 
-To check if your URL or IP address is compatible with this script just enter the following command *(replace `$url` with your IP or domain)*:
+To check if your URL or IP address is compatible with this script, simply run the following command *(replace `$url` with your IP or domain)*:
+
 
 - **HTTPS**
 ```bash
