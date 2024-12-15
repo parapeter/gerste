@@ -19,9 +19,7 @@
 
 This tiny bash script provides a one-time system clock update *(no daemon)*. Utilizing `curl`, it fetches the HTTP headers from a specified domain or IP address. From there, `grep` extracts the timestamp, and based on summer or wintertime status, the system clock gets adjusted using the `date` command. By default, traffic is routed over HTTPS, with an optional way to route traffic through `tor`.
 
-While originally designed for Germany, this script is adaptable to any country in the CET/CEST timezone, as they also change clocks. The name `gerste` was chosen, likely influenced by its connection to beer (?).
-
-¹ all countries in CET/CEST-Timezone.
+While originally designed for Germany, this script is adaptable to any country in the CET/CEST timezone, as they also change clocks twice a year. The name `gerste` was chosen, likely influenced by its connection to beer (?).
 
 Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/master/airootfs/usr/lib/obscurix/secure-time-sync).
 
@@ -31,6 +29,7 @@ Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/mas
 - [Configuration](https://github.com/parapeter/gerste?tab=readme-ov-file#gear-configuration)
 - [Usage](https://github.com/parapeter/gerste?tab=readme-ov-file#rocket-usage)
 - [Uninstall](https://github.com/parapeter/gerste?tab=readme-ov-file#wastebasket-uninstall)
+- [Why?](https://github.com/parapeter/gerste?tab=readme-ov-file#question-why)
 - [Contact](https://github.com/parapeter/gerste?tab=readme-ov-file#envelope-contact)
 
 ## :hammer_and_wrench: Preparation
@@ -140,6 +139,12 @@ FILES
   $ cd download-path/gerste
   $ sudo ./install.sh -u
 ```
+
+## :question: Why
+Some might argue that using `curl` for time synchronization is unnecessary when well-established solutions like `NTP` already exists. Indeed, `NTP` has been the standard for decades and is a reliable choice for time synchronization in most scenarios.
+However, this script offers a more flexible approach that allows users to control the process in a way that `NTP` doesn’t. It’s particularly useful for those who prefer to handle time synchronization manually or customize the process to suit specific needs.
+
+While `NTP` is a solid, enterprise-grade solution, this script presents an alternative for users who may want something different. That being said, due to the script's somewhat naive approach, it should not be directly compared to the robustness and reliability of a good `NTP` configuration.
 
 ## :envelope: Contact
 
