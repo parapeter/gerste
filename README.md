@@ -14,12 +14,14 @@
 > [!WARNING]
 > This bash script is only as secure as the webservers which gets triggered and only as secure as the connection itself.
 
+This tiny bash script provides an one-time system clock update *(no daemon)*. Utilizing `curl`, it fetches the HTTP headers from a specified domain or IP address. From there `grep` extracts the timestamp and `date` adjusts the system clock based on your local timezone. By default, traffic is routed over HTTPS, with an optional way to route it through `tor`.
+
+While originally designed for Germany (CET/CEST-Timezone), this script *since version 0.5.1* is usable with every timezone.
+
+While originally designed for Germany (CET/CEST timezone), this script has been usable with any timezone since `version 0.5.1.`. Without keeping this in mind the name `gerste` was chosen (likely influenced by its connection to beer?).
+
 > [!NOTE]
 > This project is still in it's early development and should not be used in any production environment. Help is always welcome.
-
-This tiny bash script provides a one-time system clock update *(no daemon)*. Utilizing `curl`, it fetches the HTTP headers from a specified domain or IP address. From there, `grep` extracts the timestamp, and based on summer or wintertime status, the system clock gets adjusted using the `date` command. By default, traffic is routed over HTTPS, with an optional way to route traffic through `tor`.
-
-While originally designed for Germany, this script is adaptable to any country in the CET/CEST timezone, as they also change clocks twice a year. The name `gerste` was chosen, likely influenced by its connection to beer (?).
 
 Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/master/airootfs/usr/lib/obscurix/secure-time-sync).
 
@@ -38,7 +40,7 @@ Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/mas
 2. Make sure that `/etc/localtime` is set correctly
 
 ```bash
-  $ ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+  $ ln -sf /usr/share/zoneinfo/Your/Timezone /etc/localtime
 ```
 
 3. Install dependencies
@@ -50,8 +52,7 @@ Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/mas
   $ apt install curl date grep
 ```
 
-4. **Optional:** Install and enable dependencies for using gerste through tor
-*(Ensure you use the standard port 9050 for `tor`. Otherwise, you'll need to modify the script accordingly)*
+4. **Optional:** Install and enable dependencies for using `gerste` through `tor`
 
 ```bash
   # Arch based systems
@@ -61,7 +62,7 @@ Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/mas
 
   $ systemctl start tor.service
 ```
-
+*Ensure you use the **standard port 9050 on localhost** for `tor`. Otherwise, you'll need to modify the script `gerste.sh` for now.*
 
 ## :cd: Installation
 
@@ -82,17 +83,17 @@ Open the configuration file using your preferred text editor:
   $ nano /etc/gerste.conf
 ```
 
-You can add or remove URLs *(or IPs)* that `curl` will query. For `[HTTPS-URLs]`, only https URLs and IP addresses are accepted, while for `[TOR-URLs]`, you must provide `.onion` URLs.
+You can add or remove URLs *(or IPs)* that `curl` will query. For `[HTTPS-URLs]`, only https URLs and IP addresses are accepted, while for `[TOR-URLs]` you must provide `.onion` URLs.
 
 > [!NOTE] 
 > By default the config file is only read- and writable by root.
 
-To check if your URL or IP address is compatible with this script, simply run the following command *(replace `$url` with your IP or domain)*:
+To check if your URL or IP address is compatible with this script simply run the following command *(replace `$url` with your IP or domain)*:
 
 
 - **HTTPS**
 ```bash
-curl --cacert /path/to/your/ca-certificates.crt --head --silent --no-keepalive --tlsv1.3 --junk-session-cookies --max-redirs 0 --max-time 10 --referer "" "$url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]"
+curl --cacert /etc/ssl/certs/ca-certificates.crt --head --silent --no-keepalive --tlsv1.3 --junk-session-cookies --max-redirs 0 --max-time 10 --referer "" "$url" 2>&1 | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]"
 ```
 
 - **TOR**
@@ -141,10 +142,7 @@ FILES
 ```
 
 ## :question: Why
-Some might argue that using `curl` for time synchronization is unnecessary when well-established solutions like `NTP` already exists. Indeed, `NTP` has been the standard for decades and is a reliable choice for time synchronization in most scenarios.
-However, this script offers a more flexible approach that allows users to control the process in a way that `NTP` doesn’t. It’s particularly useful for those who prefer to handle time synchronization manually or customize the process to suit specific needs.
-
-While `NTP` is a solid, enterprise-grade solution, this script presents an alternative for users who may want something different. That being said, due to the script's somewhat naive approach, it should not be directly compared to the robustness and reliability of a good `NTP` configuration.
+While `NTP` is a solid, enterprise-grade solution, this script presents an alternative for users who may want something different. Due to the script's naive approach, it should not be directly compared to the robustness and reliability of a good `NTP` configuration.
 
 ## :envelope: Contact
 
