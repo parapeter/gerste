@@ -16,9 +16,7 @@
 
 This tiny bash script provides an one-time system clock update *(no daemon)*. Utilizing `curl`, it fetches the HTTP headers from a specified domain or IP address. From there `grep` extracts the timestamp and `date` adjusts the system clock based on your local timezone. By default, traffic is routed over HTTPS, with an optional way to route it through `tor`.
 
-While originally designed for Germany (CET/CEST-Timezone), this script *since version 0.5.1* is usable with every timezone.
-
-While originally designed for Germany (CET/CEST timezone), this script has been usable with any timezone since `version 0.5.1.`. Without keeping this in mind the name `gerste` was chosen (likely influenced by its connection to beer?).
+While originally designed for Germany (CET/CEST timezone), this script has been usable with any timezone since `version 0.5.1.`. Without keeping this in mind the first impulse for a name was `gerste` (likely influenced by its connection to beer?).
 
 > [!NOTE]
 > This project is still in it's early development and should not be used in any production environment. Help is always welcome.
