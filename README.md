@@ -12,14 +12,11 @@
 </div>
 
 > [!WARNING]
-> This bash script is only as secure as the webservers which gets triggered and only as secure as the connection itself.
+> This script is only as secure as the webservers which gets triggered and only as secure as the connection itself.
 
 This tiny bash script provides an one-time system clock update *(no daemon)*. Utilizing `curl`, it fetches the HTTP headers from a specified domain or IP address. From there `grep` extracts the timestamp and `date` adjusts the system clock based on your local timezone. By default, traffic is routed over HTTPS, with an optional way to route it through `tor`.
 
 While originally designed for Germany (CET/CEST timezone), this script has been usable with any timezone since `version 0.5.1.`. Without keeping this in mind the first impulse for a name was `gerste` (likely influenced by its connection to beer?).
-
-> [!NOTE]
-> This project is still in it's early development and should not be used in any production environment. Help is always welcome.
 
 Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/master/airootfs/usr/lib/obscurix/secure-time-sync).
 
