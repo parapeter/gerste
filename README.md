@@ -38,27 +38,27 @@ Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/mas
 2. Make sure that `/etc/localtime` is set correctly
 
 ```bash
-  $ ln -sf /usr/share/zoneinfo/Your/Timezone /etc/localtime
+  $ sudo ln -sf /usr/share/zoneinfo/Your/Timezone /etc/localtime
 ```
 
 3. Install dependencies
 
 ```bash
   # Arch based systems
-  $ pacman -S curl date grep
+  $ sudo pacman -S curl date grep ca-certificates
   # Debian based systems
-  $ apt install curl date grep
+  $ sudo apt install curl date grep ca-certificates
 ```
 
 4. **Optional:** Install and enable dependencies for using `gerste` through `tor`
 
 ```bash
   # Arch based systems
-  $ pacman -S tor
+  $ sudo pacman -S tor
   # Debian based systems
-  $ apt install tor
+  $ sudo apt install tor
 
-  $ systemctl start tor.service
+  $ sudo systemctl start tor.service
 ```
 *Ensure you use the **standard port 9050 on localhost** for `tor`. Otherwise, you'll need to modify the script `gerste.sh` for now.*
 
@@ -67,7 +67,7 @@ Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/mas
 ```bash
   $ git clone https://github.com/parapeter/gerste.git
   $ cd gerste
-  $ ./install.sh
+  $ sudo ./install.sh
 ```
 
 *Feel free to handle it manually if you prefer.*
@@ -78,7 +78,7 @@ Open the configuration file using your preferred text editor:
 
 
 ```bash
-  $ nano /etc/gerste.conf
+  $ sudo rnano /etc/gerste.conf
 ```
 
 You can add or remove URLs *(or IPs)* that `curl` will query. For `[HTTPS-URLs]`, only https URLs and IP addresses are accepted, while for `[TOR-URLs]` you must provide `.onion` URLs.
