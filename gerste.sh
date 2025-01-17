@@ -31,26 +31,17 @@ readonly VERSION="0.5.1"
 readonly SCRIPT_NAME="gerste"
 readonly CONF_PATH="/etc/gerste.conf"
 
-tor_enabled=false
-dry_run_enabled=false
-
 ### HELPERS ###
-function check_parameter_error() {
-    local parameter="${1:-"ERROR"}"
-    if [[ "$parameter" == "ERROR" ]]; then
-        error "an error accured while passing parameters"
-    fi
-}
-
 function print_info() {
-    local message="${1:-"ERROR"}"
-    check_parameter_error "$message"
+    local message="${1:-}"
+    [[ -z "$message" ]] && exit "missing parameter"
     echo "[ ${SCRIPT_NAME} ] info: ${message}"
     logger "[ ${SCRIPT_NAME} ] info: ${message}"
 }
 
 function error() {
-    local message="${1:-"ERROR"}"
+    local message="${1:-}"
+    [[ -z "$message" ]] && exit "missing parameter"
     echo "[ ${SCRIPT_NAME} ] error: ${message}"
     logger -p user.err "[ ${SCRIPT_NAME} ] error: ${message}"
     exit 1
@@ -97,7 +88,7 @@ function parse_parameters() {
 ### DEPENDENCIES ###
 function check_dependencies() {
     # Check if dependencies are installed
-    local dependencies=( curl date grep )
+    local dependencies=( curl date grep ca-certificates )
     for dependency in "${dependencies[@]}"; do
         is_command_installed "$dependency"
     done
@@ -118,14 +109,15 @@ function check_dependencies() {
     fi
 
     # Check if tor is running (option -t/--tor)
+    local tor_enabled=${tor_enabled:-false}
     if [[ "$tor_enabled" == "true" && -z $(pgrep -x tor) ]]; then
         error "no tor process found"
     fi
 }
 
 function is_command_installed() {
-    local command_name="${1:-"ERROR"}"
-    check_parameter_error "$command_name"
+    local command_name="${1:-}"
+    [[ -z "$command_name" ]] && exit "missing parameter"
     if ! command -v "$command_name" &> /dev/null; then
         error "${command_name} needs to be installed"
     fi
@@ -134,6 +126,7 @@ function is_command_installed() {
 ### PREPARE URL ###
 function load_urls() {
     local -a urls
+    local tor_enabled=${tor_enabled:-false}
     
     if [[ "$tor_enabled" == "true" ]]; then
         readarray -t urls < <(awk '/^\[TOR-URLS\]/{found=1; next} /^\[/{found=0} found && !/^#/ && NF{print}' "$CONF_PATH") # Line by line after [TOR-URLS] until next line start with "["
@@ -145,8 +138,9 @@ function load_urls() {
 }
 
 function validate_url() {
-    local url="${1:-"ERROR"}"
-    check_parameter_error "$url"
+    local url="${1:-}"
+    local tor_enabled=${tor_enabled:-false}
+    [[ -z "$url" ]] && exit "missing parameter"
 
     if [[ "$tor_enabled" == "true" ]]; then
         if [[ ! "$url" =~ \.onion$ ]]; then
@@ -161,8 +155,9 @@ function validate_url() {
 
 ### TIME OPERATIONS ###
 function fetch_time() {
-    local url="${1:-"ERROR"}"
-    check_parameter_error "$url"
+    local url="${1:-}"
+    local tor_enabled=${tor_enabled:-false}
+    [[ -z "$url" ]] && exit "missing message"
 
     # Fetch HTTP header response
     if [[ "$tor_enabled" == "true" ]]; then
@@ -209,8 +204,8 @@ function fetch_time() {
 }
 
 function adjust_timezone_offset() {
-    local fetched_time="${1:-"ERROR"}"
-    check_parameter_error "$fetched_time"
+    local fetched_time="${1:-}"
+    [[ -z "$fetched_time" ]] && exit "missing parameter"
     
     local offset
     offset=$(date +%z) || error "could not detect timezone offset"
@@ -269,8 +264,8 @@ function adjust_timezone_offset() {
 }
 
 function set_system_time() {
-    local new_time="${1:-"ERROR"}"
-    check_parameter_error "$new_time"
+    local new_time="${1:-}"
+    [[ -z "$new_time" ]] && exit "missing parameter"
     local current_time
     current_time=$(date +%H:%M:%S) || error "could not get current time"
 
@@ -310,8 +305,9 @@ function main() {
     adjusted_time=$(adjust_timezone_offset "$fetched_time")
 
     # Set time (or print in dry-run)
+    local dry_run_enabled=${dry_run_enabled:-false}
     if [[ "$dry_run_enabled" == "true" ]]; then
-        print_info "(dry-run) $adjusted_time (from: $random_url)"
+        echo "[ gerste ] dry-run: $adjusted_time (from: $random_url)"
     else
         set_system_time "$adjusted_time"
     fi
