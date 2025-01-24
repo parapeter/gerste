@@ -2,7 +2,7 @@
 
 # GER*S*TE
 
-<img src="https://i.ibb.co/RBX0Pgc/gerste-logo.png" width="180" height="175">
+<img src="https://github.com/parapeter/gerste/blob/main/pics/logo.png" width="180" height="175">
 
 **GER**man-""***S**ecure""*-**T**ime-**E**ditor
 
