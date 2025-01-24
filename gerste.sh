@@ -28,32 +28,32 @@ set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 
 readonly VERSION="0.5.1"
-readonly SCRIPT_NAME="gerste"
 readonly CONF_PATH="/etc/gerste.conf"
 
 ### HELPERS ###
 function print_info() {
     local message="${1:-}"
-    [[ -z "$message" ]] && exit "missing parameter"
-    echo "[ ${SCRIPT_NAME} ] info: ${message}"
-    logger "[ ${SCRIPT_NAME} ] info: ${message}"
+    [[ -z "$message" ]] && error "missing parameter"
+    echo "[ ${0} ] info: ${message}"
+    logger "[ ${0} ] info: ${message}"
 }
 
 function error() {
     local message="${1:-}"
-    [[ -z "$message" ]] && exit "missing parameter"
-    echo "[ ${SCRIPT_NAME} ] error: ${message}"
-    logger -p user.err "[ ${SCRIPT_NAME} ] error: ${message}"
+    [[ -z "$message" ]] && exit 1
+    echo "[ ${0} ] error: ${message}"
+    logger -p user.err "[ ${0} ] error: ${message}"
     exit 1
 }
 
 function random_from_array() {
     local -a array=("$@")
+    local array_length=${#array[@]}
 
-    if [[ ${#array[@]} -eq 1 ]]; then
+    if [[ ${array_length} -eq 1 ]]; then
         echo "${array[0]}"
     else
-        local random_index=$((RANDOM % ${#array[@]}))
+        local random_index=$((RANDOM % array_length))
         echo "${array[${random_index}]}"
     fi
 }
@@ -75,7 +75,7 @@ function parse_parameters() {
                 dry_run_enabled=true
                 ;;
             -v|--version)
-                echo "${SCRIPT_NAME}-${VERSION}"
+                echo "${0}-${VERSION}"
                 exit 0
                 ;;
             *)
@@ -88,7 +88,7 @@ function parse_parameters() {
 ### DEPENDENCIES ###
 function check_dependencies() {
     # Check if dependencies are installed
-    local dependencies=( curl date grep ca-certificates )
+    local dependencies=( curl date grep )
     for dependency in "${dependencies[@]}"; do
         is_command_installed "$dependency"
     done
@@ -117,7 +117,7 @@ function check_dependencies() {
 
 function is_command_installed() {
     local command_name="${1:-}"
-    [[ -z "$command_name" ]] && exit "missing parameter"
+    [[ -z "$command_name" ]] && error "missing parameter"
     if ! command -v "$command_name" &> /dev/null; then
         error "${command_name} needs to be installed"
     fi
@@ -140,7 +140,7 @@ function load_urls() {
 function validate_url() {
     local url="${1:-}"
     local tor_enabled=${tor_enabled:-false}
-    [[ -z "$url" ]] && exit "missing parameter"
+    [[ -z "$url" ]] && error "missing parameter"
 
     if [[ "$tor_enabled" == "true" ]]; then
         if [[ ! "$url" =~ \.onion$ ]]; then
@@ -157,14 +157,15 @@ function validate_url() {
 function fetch_time() {
     local url="${1:-}"
     local tor_enabled=${tor_enabled:-false}
-    [[ -z "$url" ]] && exit "missing message"
+    [[ -z "$url" ]] && error "missing message"
 
     # Fetch HTTP header response
     if [[ "$tor_enabled" == "true" ]]; then
         if ! response=$(
                 curl \
                   --socks5-hostname localhost:9050 \
-                  --head --silent \
+                  --head \
+                  --silent \
                   --no-keepalive \
                   --tlsv1.3 \
                   --junk-session-cookies \
@@ -196,24 +197,24 @@ function fetch_time() {
     fi
 
     # Extract time from response
-    if ! date_info=$(echo "$response" | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]"); then
+    if ! fetched_time=$(echo "$response" | grep -i "Date:" | grep -o "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]"); then
         error "could not extract time from server response"
     fi
 
-    echo "$date_info"
+    echo "$fetched_time"
 }
 
 function adjust_timezone_offset() {
     local fetched_time="${1:-}"
-    [[ -z "$fetched_time" ]] && exit "missing parameter"
+    [[ -z "$fetched_time" ]] && error "missing parameter"
     
     local offset
     offset=$(date +%z) || error "could not detect timezone offset"
 
     if [[ $offset =~ ^([+-])([0-9]{2})([0-9]{2})$ ]]; then
-        local offset_operator="${BASH_REMATCH[1]}" # Extract "+" or "-" if regex matches
-        local offset_hours="${BASH_REMATCH[2]}" # Extract hours offset if regex matches
-        local offset_minutes="${BASH_REMATCH[3]}" # Extract minutes offset if regex matches
+        local offset_operator="${BASH_REMATCH[1]}" # Extract "+" or "-" with matching regex
+        local offset_hours="${BASH_REMATCH[2]}" # Extract hours offset with matching regex
+        local offset_minutes="${BASH_REMATCH[3]}" # Extract minutes offset with matching regex
     else
         error "unknown timezone offset format"
     fi
@@ -265,7 +266,7 @@ function adjust_timezone_offset() {
 
 function set_system_time() {
     local new_time="${1:-}"
-    [[ -z "$new_time" ]] && exit "missing parameter"
+    [[ -z "$new_time" ]] && error "missing parameter"
     local current_time
     current_time=$(date +%H:%M:%S) || error "could not get current time"
 
@@ -288,8 +289,11 @@ function main() {
     parse_parameters "$@"
     check_dependencies
 
-    local -a server_urls=($(load_urls))
+    # Load URLs
+    local -a server_urls
+    server_urls=($(load_urls))
 
+    # Select random URL
     local random_url
     random_url=$(random_from_array "${server_urls[@]}")
 
