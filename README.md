@@ -57,6 +57,12 @@ Got inspired by [secure-time-sync](https://github.com/Obscurix/Obscurix/blob/mas
 ```
 *Ensure you use the **standard port 9050 on localhost** for `tor`. Otherwise, you'll need to modify the script `gerste.sh` for now.*
 
+5. Copy `/etc/gerste.conf` to `/etc`:
+
+```bash
+  $ sudo cp gerste.conf /etc/
+```
+
 ## Configuration
 
 Open the configuration file using your preferred text editor:
